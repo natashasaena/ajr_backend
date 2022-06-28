@@ -136,7 +136,8 @@ class CustomerController extends Controller
         $customer->jenis_kelamin = $updateData['jenis_kelamin'];
         $customer->email = $updateData['email'];
         $customer->no_telp = $updateData['no_telp'];
-        $customer->password = $updateData['password'];
+  
+        $customer->password = bcrypt($updateData['password']);
         $customer->status_customer = $updateData['status_customer'];
         $customer->sim = $updateData['sim'];
         $customer->identitas = $updateData['identitas'];

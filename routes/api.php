@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\Api\PegawaiAuthController;
 use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\DriverAuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DriverController;
 use App\Http\Controllers\Api\PemilikMobilController;
@@ -119,6 +120,7 @@ Route::controller(JadwalController::class)->group(function(){
 
 Route::controller(PromoController::class)->group(function(){
     Route::get('/promo','index');
+    Route::get('/promoaktif','promoAktif');
     Route::get('/promo/show/{id}','show');
     Route::post('/promo/store', 'store');
     Route::put('/promo/update/{id}','update');
@@ -127,6 +129,7 @@ Route::controller(PromoController::class)->group(function(){
 Route::controller(TransaksiController::class)->group(function(){
     Route::get('/transaksi','index');
     Route::get('/transaksi/showbyidcustomer/{id}', 'showByIdCustomer');
+    Route::get('/transaksi/show/transaksi/berhasil/{id}', 'showByIdCustomer2');
     Route::get('/transaksi/show/{id}','show');
     Route::get('/transaksi/laporan/mobil/{bulan}/{tahun}','laporanMobil');
     Route::get('/transaksi/laporan/customer/{bulan}/{tahun}','laporanCustomer');

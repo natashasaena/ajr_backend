@@ -73,8 +73,8 @@ class MobilController extends Controller
                 'harga_sewa'=> 'required|numeric',
                 'status_sewa'=> 'required',
                 'tgl_terakhir_servis'=> 'required|date',
-                'periode_kontrak_mulai'=> 'required|date',
-                'periode_kontrak_akhir'=> 'required|date',
+                //'periode_kontrak_mulai'=> 'required|date',
+                //'periode_kontrak_akhir'=> 'required|date',
                 'foto'=> 'required'
             ]);
         }else{
@@ -162,7 +162,7 @@ class MobilController extends Controller
                 'data' => null
             ], 404);
         }
-
+        
         $updateData = $request->all();
         $validate = null;
         if($updateData['id_pemilik_mobil'] != null){

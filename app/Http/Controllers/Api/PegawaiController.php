@@ -184,7 +184,7 @@ class PegawaiController extends Controller
         $pegawai->jenis_kelamin = $updateData['jenis_kelamin'];
         $pegawai->email = $updateData['email'];
         $pegawai->no_telp = $updateData['no_telp'];
-        $pegawai->password = $updateData['password'];
+        $pegawai->password = bcrypt($updateData['password']);
         //$pegawai->status_pegawai = $updateData['status_pegawai'];
         $pegawai->foto = $updateData['foto'];
      

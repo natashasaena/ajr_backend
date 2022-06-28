@@ -31,7 +31,21 @@ class PromoController extends Controller
             'data' => null
         ],400);
     }
+    public function promoAktif(){
+        $promo = Promo::where('status_promo', 'Aktif')->get();
 
+        if(!is_null($promo)){
+            return response([
+                'message' => 'Retrieve All Success',
+                'data' => $promo
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Promo Not Found',
+            'data' => null
+        ], 404);
+    }
     /**
      * Show the form for creating a new resource.
      *

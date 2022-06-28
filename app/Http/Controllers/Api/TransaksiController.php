@@ -71,6 +71,34 @@ class TransaksiController extends Controller
         'pegawai.*', 'promo.*', 'mobil.*', 'driver.*') */
         ->select('transaksi.id as id_tr', 'transaksi.*', 'customer.nama as nama_customer', 'driver.nama as nama_driver', 'mobil.nama_mobil', 'pegawai.nama as nama_pegawai')
         ->where('transaksi.id_customer', $id)
+        ->where('transaksi.status_penyewaan', '!=', "Pembayaran Berhasil")
+        ->orderBy('transaksi.id','asc')                     
+        ->get();
+        if(!is_null($transaksis)) {
+            return response([
+                'message' => 'Retrieve Transaksi Success',
+                'data' => $transaksis
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Transaksi Not Found',
+            'data' => null
+        ], 404);
+    }
+    public function showByIdCustomer2($id) {
+        //$transaksi = Transaksi::where('id_customer', $id)->get();
+        $transaksis = DB::table('transaksi')
+        ->leftjoin('pegawai', 'transaksi.id_pegawai', '=', 'pegawai.id_pegawai')
+        ->leftjoin('customer', 'transaksi.id_customer', '=', 'customer.id_customer')
+        ->leftjoin('driver', 'transaksi.id_driver', '=', 'driver.id_driver')
+        ->leftjoin('mobil', 'transaksi.id_mobil', '=', 'mobil.id_mobil')
+        ->leftjoin('promo', 'transaksi.id_promo', '=', 'promo.id_promo') 
+        /* ->select('transaksi.id as id_tr', 'transaksi.*', 'customer.nama as nama_customer', 'customer.*',
+        'pegawai.*', 'promo.*', 'mobil.*', 'driver.*') */
+        ->select('transaksi.id as id_tr', 'transaksi.*', 'customer.nama as nama_customer', 'driver.nama as nama_driver', 'mobil.nama_mobil', 'pegawai.nama as nama_pegawai')
+        ->where('transaksi.id_customer', $id)
+        ->where('transaksi.status_penyewaan', '=', "Pembayaran Berhasil")
         ->orderBy('transaksi.id','asc')                     
         ->get();
         if(!is_null($transaksis)) {
@@ -426,6 +454,88 @@ class TransaksiController extends Controller
         $transaksi->id_driver = $updateData['id_driver'];
         $transaksi->id_customer = $updateData['id_customer'];
         $transaksi->id_mobil = $updateData['id_mobil'];
+        $transaksi->id_promo = $updateData['id_promo'];
+        $transaksi->jenis_penyewaan = $updateData['jenis_penyewaan'];
+        $transaksi->tgl_transaksi = $updateData['tgl_transaksi'];
+        $transaksi->tgl_mulai_sewa = $updateData['tgl_mulai_sewa'];
+        $transaksi->tgl_selesai = $updateData['tgl_selesai'];
+        $transaksi->tgl_pengembalian = $updateData['tgl_pengembalian'];
+        $transaksi->sub_total = $updateData['sub_total'];
+        $transaksi->status_penyewaan = $updateData['status_penyewaan'];
+        $transaksi->tgl_pembayaran = $updateData['tgl_pembayaran'];
+        $transaksi->metode_pembayaran = $updateData['metode_pembayaran'];
+        $transaksi->total_diskon = $updateData['total_diskon'];
+        $transaksi->total_denda = $updateData['total_denda'];
+        $transaksi->total_harga_bayar = $updateData['total_harga_bayar'];
+        $transaksi->bukti_pembayaran = $updateData['bukti_pembayaran'];
+        //$transaksi->rating_driver = $updateData['rating_driver'];
+        //$transaksi->performa_driver = $updateData['performa_driver'];
+        //$transaksi->rating_rental = $updateData['rating_rental'];
+        //$transaksi->performa_rental = $updateData['performa_rental'];
+        if($transaksi->save()){
+            return response([
+                'message' => 'Update Transaksi Success',
+                'data' => $transaksi
+            ],200);
+        };
+      
+        return response([
+            'message' => 'Update Transaksi Failed',
+            'data' => null
+        ],400);
+    }
+    public function updateDetail(Request $request, $id)
+    {
+        $transaksi = Transaksi::where('id_transaksi',$id)->first(); 
+
+        if(is_null($transaksi)){
+            return response([
+                'message' => 'Transaksi Not Found',
+                'data' => null
+            ],404);
+        }
+
+        $updateData = $request->all();
+        $validate = Validator::make($updateData,[
+            'id_transaksi' => ['required',Rule::unique('transaksi')->ignore($transaksi)],
+            //'id_pegawai' => 'required',
+            //'id_driver' => 'required',
+            'id_customer'=> 'required',
+            'id_mobil'=> 'required',
+            'jenis_penyewaan' => 'required',
+            'tgl_transaksi'=> 'required|date',
+            'tgl_mulai_sewa' => 'required|date',
+            'tgl_selesai'=> 'required|date',
+            //'tgl_pengembalian' => 'required|date',
+            'sub_total' => 'required', 
+            'status_penyewaan' => 'required',
+            //'tgl_pembayaran'=> 'required',
+            //'metode_pembayaran'=> 'required',
+            'total_diskon' => 'required',
+            'total_denda' => 'required',
+            'total_harga_bayar'=> 'required',
+            //'bukti_pembayaran' => 'required',
+            //'rating_driver' => 'required',
+            //'performa_driver' => 'required',
+            //'rating_rental' => 'required',
+            //'performa_rental' => 'required'
+        ]);
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);
+
+          
+        $customer = Customer::where('id_customer', $updateData['id_customer'])->first();
+        if($customer->sim == "-" && $updateData['jenis_penyewaan'] == "Penyewaan Mobil") {
+            return response(['message' => 'Jenis Penyewaan tidak valid karena customer belum memiliki SIM'], 400);
+        }
+
+        $transaksi->id_transaksi = $updateData['id_transaksi'];
+        $transaksi->id_pegawai = $updateData['id_pegawai'];
+        $transaksi->id_driver = $updateData['id_driver'];
+        $transaksi->id_customer = $updateData['id_customer'];
+        $transaksi->id_mobil = $updateData['id_mobil'];
+        $transaksi->id_promo = $updateData['id_promo'];
         $transaksi->jenis_penyewaan = $updateData['jenis_penyewaan'];
         $transaksi->tgl_transaksi = $updateData['tgl_transaksi'];
         $transaksi->tgl_mulai_sewa = $updateData['tgl_mulai_sewa'];
@@ -614,17 +724,12 @@ class TransaksiController extends Controller
         
         if($idPromo != null) {
             $besarDiskon = DB::table('promo')->where('id_promo', $idPromo)->first()->besar_diskon;
-            $totalDiskon = $toBeUpdated->sub_total * $besarDiskon;
+            $totalDiskon = $toBeUpdated->sub_total * ($besarDiskon/100);
         }
 
         $totalHarga = $toBeUpdated->sub_total + $toBeUpdated->total_denda - $totalDiskon;
         $toBeUpdated->total_diskon = $totalDiskon;
         $toBeUpdated->total_harga_bayar = $totalHarga;
-        
-        // $updateData = $request->all();
-        //kurang code utk save ke db nya
-        // $toBeUpdated->total_diskon = $updateData['total_diskon'];
-        // $toBeUpdated->total_harga_bayar = $updateData['total_harga_bayar'];
         if($toBeUpdated->save()) {
             return response([
                 'message' => 'Update Harga Success',
@@ -636,7 +741,7 @@ class TransaksiController extends Controller
             'message' => 'Update Harga Failed',
             'data' => null
         ], 400);
-        }
+    }
     public function returnMobil($id) {
 
         $toBeUpdated = Transaksi::where('id_transaksi', $id)->first();
@@ -644,7 +749,7 @@ class TransaksiController extends Controller
         
         $toBeUpdated->tgl_pengembalian = $tgl_pengembalian;
 
-        $dateStart = Carbon::parse($toBeUpdated->tgl_mulai_sewa);
+        $dateStart = Carbon::parse($toBeUpdated->tgl_selesai_sewa);
         $dateEnd = Carbon::parse($tgl_pengembalian);
         $hourInterval = $dateStart->diffInHours($dateEnd);
   
